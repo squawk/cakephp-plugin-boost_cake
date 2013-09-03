@@ -61,6 +61,8 @@ class BoostCakeFormHelper extends FormHelper {
 	public function input($fieldName, $options = array()) {
 		$this->_fieldName = $fieldName;
 
+		$default = array();
+		/*
 		$default = array(
 			'error' => array(
 				'attributes' => array(
@@ -74,8 +76,33 @@ class BoostCakeFormHelper extends FormHelper {
 			'checkboxDiv' => 'checkbox',
 			'beforeInput' => '',
 			'afterInput' => '',
-			'errorClass' => 'has-error error'
+			'errorClass' => 'has-error error',
+			'between' => '<div class="col-lg-10">',
+			'after' => '</div>',
+			'label' => array('class' => 'col-lg-2 control-label'),
+			'div' => array('class' => 'form-group'),
 		);
+		*/
+
+		$default = array(
+			'error' => array(
+				'attributes' => array(
+					'wrap' => 'span',
+					'class' => 'help-block text-danger'
+				)
+			),			'errorClass' => 'has-error error',
+			'div' => array('class' => 'form-group'),
+			'class' => 'form-control',
+			'wrapInput' => '',
+			'beforeInput' => '',
+			'afterInput' => '',
+			'checkboxDiv' => 'checkbox',
+			);
+
+		// Format the label correctly
+		if (isset($options['label']) and !is_array($options['label'])) {
+			$options['label'] = array('text' => $options['label']);
+		}
 
 		$options = Hash::merge(
 			$default,
