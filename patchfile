@@ -1,0 +1,121 @@
+diff --git View/Helper/BoostCakeFormHelper.php View/Helper/BoostCakeFormHelper.php
+index 05e998d..3754007 100644
+--- View/Helper/BoostCakeFormHelper.php
++++ View/Helper/BoostCakeFormHelper.php
+@@ -17,7 +17,39 @@ class BoostCakeFormHelper extends FormHelper {
+ 	protected $_fieldName = null;
+ 
+ /**
+- * Overwirte FormHemlper::input()
++ * Overwrite FormHelper::create()
++ */
++	public function create($model = null, $options = array()) {
++		$inputDefaults = array(
++			'form-horizonal' => array(
++				'label' => array('class' => 'col-md-2 control-label'),
++				'wrapInput' => array('tag' => 'div', 'class' => 'col-md-10'),
++				),
++			'form-inline' => array(
++				'label' => array('class' => 'sr-only'),
++				)
++			);
++		if (is_array($model) && empty($options)) {
++			$options = $model;
++			$model = null;
++		}
++		if (isset($options['class'])) {
++			if (empty($options['inputDefaults'])) {
++				$options['inputDefaults'] = array();
++			}
++			if ($options['class'] == 'form-horizontal') {
++				$options['inputDefaults'] = array_merge($options['inputDefaults'], $inputDefaults['form-horizonal']);
++			}
++			if ($options['class'] == 'form-inline') {
++				$options['inputDefaults'] = array_merge($options['inputDefaults'], $inputDefaults['form-inline']);
++			}
++		}
++
++		return parent::create($model, $options);
++	}
++
++/**
++ * Overwrite FormHelper::input()
+  * Generates a form input element complete with label and wrapper div
+  *
+  * ### Options
+@@ -61,6 +93,8 @@ class BoostCakeFormHelper extends FormHelper {
+ 	public function input($fieldName, $options = array()) {
+ 		$this->_fieldName = $fieldName;
+ 
++		$default = array();
++		/*
+ 		$default = array(
+ 			'error' => array(
+ 				'attributes' => array(
+@@ -74,8 +108,33 @@ class BoostCakeFormHelper extends FormHelper {
+ 			'checkboxDiv' => 'checkbox',
+ 			'beforeInput' => '',
+ 			'afterInput' => '',
+-			'errorClass' => 'has-error error'
++			'errorClass' => 'has-error error',
++			'between' => '<div class="col-lg-10">',
++			'after' => '</div>',
++			'label' => array('class' => 'col-lg-2 control-label'),
++			'div' => array('class' => 'form-group'),
+ 		);
++		*/
++
++		$default = array(
++			'error' => array(
++				'attributes' => array(
++					'wrap' => 'span',
++					'class' => 'help-block text-danger'
++				)
++			),			'errorClass' => 'has-error error',
++			'div' => array('class' => 'form-group'),
++			'class' => 'form-control',
++			'wrapInput' => '',
++			'beforeInput' => '',
++			'afterInput' => '',
++			'checkboxDiv' => 'checkbox',
++			);
++
++		// Format the label correctly
++		if (isset($options['label']) and !is_array($options['label'])) {
++			$options['label'] = array('text' => $options['label']);
++		}
+ 
+ 		$options = Hash::merge(
+ 			$default,
+diff --git View/Helper/BoostCakeHtmlHelper.php View/Helper/BoostCakeHtmlHelper.php
+index 2965a51..1ef59a9 100644
+--- View/Helper/BoostCakeHtmlHelper.php
++++ View/Helper/BoostCakeHtmlHelper.php
+@@ -71,4 +71,13 @@ class BoostCakeHtmlHelper extends HtmlHelper {
+ 		return parent::image($path, $options);
+ 	}
+ 
+-}
+\ No newline at end of file
++/**
++ * navbar method
++ *
++ * Creates a navigation bar
++ */
++	public function navbar($menu) {
++
++	}
++
++}
+diff --git View/Helper/BoostCakePaginatorHelper.php View/Helper/BoostCakePaginatorHelper.php
+index 1eade3f..0e0b655 100644
+--- View/Helper/BoostCakePaginatorHelper.php
++++ View/Helper/BoostCakePaginatorHelper.php
+@@ -4,6 +4,7 @@ App::uses('PaginatorHelper', 'View/Helper');
+ class BoostCakePaginatorHelper extends PaginatorHelper {
+ 
+ 	public function pagination($options = array()) {
++		echo 'hi'; exit;
+ 		$default = array(
+ 			'div' => false,
+ 			'ul' => ''

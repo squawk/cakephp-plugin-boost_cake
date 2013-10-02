@@ -4,6 +4,7 @@ App::uses('PaginatorHelper', 'View/Helper');
 class BoostCakePaginatorHelper extends PaginatorHelper {
 
 	public function pagination($options = array()) {
+		echo 'hi'; exit;
 		$default = array(
 			'div' => false,
 			'ul' => ''
