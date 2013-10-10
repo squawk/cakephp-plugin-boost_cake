@@ -1,7 +1,7 @@
-<?php $this->layout = 'bootstrap2'; ?>
+<?php $this->layout = 'bootstrap3'; ?>
 <?php $this->set('title_for_layout', 'Bootstrap Plugin for CakePHP'); ?>
 
-<div class="hero-unit">
+<div class="jumbotron">
 	<h1>
 		BoostCake
 		<iframe src="http://ghbtns.com/github-btn.html?user=slywalker&repo=cakephp-plugin-boost_cake&type=watch&count=true&size=large" allowtransparency="true" frameborder="0" scrolling="0" width="170" height="30"></iframe>
@@ -47,7 +47,7 @@
 }</pre>
 
 <h3>Enable plugin</h3>
-<p>You need to enable the plugin your app/Config/bootstrap.php file:</p>
+<p>You need to enable the plugin in your app/Config/bootstrap.php file:</p>
 <pre class="prettyprint">CakePlugin::load('BoostCake');</pre>
 <p>If you are already using <code>CakePlugin::loadAll();</code>, then this is not necessary.</p>
 
@@ -65,7 +65,8 @@ class AppController extends Controller {
 
 }"); ?></pre>
 
-<h3>AuthComponet setting</h3>
+<h3>AuthComponent setting</h3>
+<p>Substitute alert-error with alert-danger if Bootstrap 3.</p>
 <pre class="prettyprint"><?php echo h("<?php
 class AppController extends Controller {
 

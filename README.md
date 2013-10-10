@@ -7,7 +7,7 @@
 BoostCake is a plugin for CakePHP using Bootstrap
 
 * [Bootstrap(2.3.2)](http://getbootstrap.com/2.3.2/)
-* [Bootstrap(3.0.0-rc1)](http://getbootstrap.com/)
+* [Bootstrap(3.0.0)](http://getbootstrap.com/)
 
 ## Requirements
 
@@ -24,6 +24,14 @@ Ensure require is present in composer.json. This will install the plugin into Pl
 		}
 	}
 
+### Enable plugin
+
+You need to enable the plugin your app/Config/bootstrap.php file:
+
+`CakePlugin::load('BoostCake');`
+
+If you are already using `CakePlugin::loadAll();`, then this is not necessary.
+
 ## Documentation
 
 [BoostCake - Bootstrap Plugin for CakePHP](http://slywalker.github.io/cakephp-plugin-boost_cake/)
@@ -37,11 +45,11 @@ More Simple! Simple! Simple!
 
 If you want to simplify the options, you can develop WrapBoostCake plugin.
 
-### What is solve in this plugin
+### What this plugin solves
 
-* Replace checkbox's and radio's `label`
-* Add `div` wrapping input
-* Add content before and after `input`
-* Add error class in outer `div`
-* Change pagination tags
-* Change SessionHelper::flash()`s template
+* Replaces the `label` of checkboxes and radios
+* Adds a wrapping `div` to inputs
+* Adds content before and after `input`
+* Adds error class in outer `div`
+* Changes pagination tags
+* Changes SessionHelper::flash()`s template

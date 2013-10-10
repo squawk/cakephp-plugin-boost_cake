@@ -190,7 +190,7 @@ class BoostCakeFormHelper extends FormHelper {
 	}
 
 /**
- * Overwirte FormHemlper::_divOptions()
+ * Overwrite FormHelper::_divOptions()
  * Generate inner and outer div options
  * Generate div options for input
  *
@@ -216,7 +216,7 @@ class BoostCakeFormHelper extends FormHelper {
 	}
 
 /**
- * Overwirte FormHemlper::_getInput()
+ * Overwrite FormHelper::_getInput()
  * Wrap `<div>` input element
  * Generates an input element
  *
@@ -254,7 +254,7 @@ class BoostCakeFormHelper extends FormHelper {
 	}
 
 /**
- * Overwirte FormHemlper::_selectOptions()
+ * Overwrite FormHelper::_selectOptions()
  * If $attributes['style'] is `<input type="checkbox">` then replace `<label>` position
  * Returns an array of formatted OPTION/OPTGROUP elements
  *
@@ -282,6 +282,54 @@ class BoostCakeFormHelper extends FormHelper {
 		}
 
 		return $selectOptions;
+	}
+
+/**
+ * Creates an HTML link, but access the url using the method you specify (defaults to POST).
+ * Requires javascript to be enabled in browser.
+ *
+ * This method creates a `<form>` element. So do not use this method inside an existing form.
+ * Instead you should add a submit button using FormHelper::submit()
+ *
+ * ### Options:
+ *
+ * - `data` - Array with key/value to pass in input hidden
+ * - `method` - Request method to use. Set to 'delete' to simulate HTTP/1.1 DELETE request. Defaults to 'post'.
+ * - `confirm` - Can be used instead of $confirmMessage.
+ * - Other options is the same of HtmlHelper::link() method.
+ * - The option `onclick` will be replaced.
+ * - `block` - For nested form. use View::fetch() output form.
+ *
+ * @param string $title The content to be wrapped by <a> tags.
+ * @param string|array $url Cake-relative URL or array of URL parameters, or external URL (starts with http://)
+ * @param array $options Array of HTML attributes.
+ * @param bool|string $confirmMessage JavaScript confirmation message.
+ * @return string An `<a />` element.
+ * @link http://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::postLink
+ */
+	public function postLink($title, $url = null, $options = array(), $confirmMessage = false) {
+		$block = false;
+		if (!empty($options['block'])) {
+			$block = $options['block'];
+			unset($options['block']);
+		}
+
+		$fields = $this->fields;
+		$this->fields = array();
+
+		$out = parent::postLink($title, $url, $options, $confirmMessage);
+
+		$this->fields = $fields;
+
+		if ($block) {
+			$regex = '/<form.*?>.*?<\/form>/';
+			if (preg_match($regex, $out, $match)) {
+				$this->_View->append($block, $match[0]);
+				$out = preg_replace($regex, '', $out);
+			}
+		}
+
+		return $out;
 	}
 
 }
