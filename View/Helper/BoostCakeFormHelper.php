@@ -16,14 +16,28 @@ class BoostCakeFormHelper extends FormHelper {
 
 	protected $_fieldName = null;
 
+	protected $_checkboxOptions = array();
+
+	protected $_defaultOffset = 2;
+
 /**
  * Overwrite FormHelper::create()
  */
 	public function create($model = null, $options = array()) {
+
+		// Variable label offset
+		$offset = $this->_defaultOffset;
+		if (isset($options['labelOffset'])) {
+			$offset = $options['labelOffset'];
+			unset($options['labelOffset']);
+		}
+		if ($offset > 12 || $offset < 1) {
+			$offset = $this->_defaultOffset;
+		}
 		$inputDefaults = array(
 			'form-horizonal' => array(
-				'label' => array('class' => 'col-md-2 control-label'),
-				'wrapInput' => array('tag' => 'div', 'class' => 'col-md-10'),
+				'label' => array('class' => sprintf('col-md-%d control-label', $offset)),
+				'wrapInput' => array('tag' => 'div', 'class' => sprintf('col-md-%d', 12 - $offset)),
 				),
 			'form-inline' => array(
 				'label' => array('class' => 'sr-only'),
@@ -44,6 +58,11 @@ class BoostCakeFormHelper extends FormHelper {
 				$options['inputDefaults'] = array_merge($options['inputDefaults'], $inputDefaults['form-inline']);
 			}
 		}
+		$this->_checkboxOptions = array(
+			'wrapInput' => array('tag' => 'div', 'class' => sprintf('col-md-%d col-md-offset-%d', 12 - $offset, $offset)),
+			'label' => array('class' => null),
+			'class' => null
+			);
 
 		return parent::create($model, $options);
 	}
@@ -93,8 +112,6 @@ class BoostCakeFormHelper extends FormHelper {
 	public function input($fieldName, $options = array()) {
 		$this->_fieldName = $fieldName;
 
-		$default = array();
-		/*
 		$default = array(
 			'error' => array(
 				'attributes' => array(
@@ -102,27 +119,7 @@ class BoostCakeFormHelper extends FormHelper {
 					'class' => 'help-block text-danger'
 				)
 			),
-			'wrapInput' => array(
-				'tag' => 'div'
-			),
-			'checkboxDiv' => 'checkbox',
-			'beforeInput' => '',
-			'afterInput' => '',
 			'errorClass' => 'has-error error',
-			'between' => '<div class="col-lg-10">',
-			'after' => '</div>',
-			'label' => array('class' => 'col-lg-2 control-label'),
-			'div' => array('class' => 'form-group'),
-		);
-		*/
-
-		$default = array(
-			'error' => array(
-				'attributes' => array(
-					'wrap' => 'span',
-					'class' => 'help-block text-danger'
-				)
-			),			'errorClass' => 'has-error error',
 			'div' => array('class' => 'form-group'),
 			'class' => 'form-control',
 			'wrapInput' => '',
@@ -132,8 +129,13 @@ class BoostCakeFormHelper extends FormHelper {
 			);
 
 		// Format the label correctly
-		if (isset($options['label']) and !is_array($options['label'])) {
+		if (!empty($options['label']) and !is_array($options['label'])) {
 			$options['label'] = array('text' => $options['label']);
+		}
+
+		// Tweaks for checkbox - must pass type
+		if (isset($options['type']) && $options['type'] == 'checkbox') {
+			$options = Hash::merge($options, $this->_checkboxOptions);
 		}
 
 		$options = Hash::merge(
