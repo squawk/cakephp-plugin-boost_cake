@@ -16,6 +16,58 @@ class BoostCakeFormHelper extends FormHelper {
 
 	protected $_fieldName = null;
 
+	protected $_checkboxOptions = array();
+
+	protected $_defaultOffset = 2;
+
+/**
+ * Overwrite FormHelper::create()
+ */
+	public function create($model = null, $options = array()) {
+
+		// Variable label offset
+		$offset = $this->_defaultOffset;
+		if (isset($options['labelOffset'])) {
+			$offset = $options['labelOffset'];
+			unset($options['labelOffset']);
+		}
+		if ($offset > 12 || $offset < 1) {
+			$offset = $this->_defaultOffset;
+		}
+		$inputDefaults = array(
+			'form-horizonal' => array(
+				'label' => array('class' => sprintf('col-md-%d control-label', $offset)),
+				'wrapInput' => array('tag' => 'div', 'class' => sprintf('col-md-%d', 12 - $offset)),
+				),
+			'form-inline' => array(
+				'label' => array('class' => 'sr-only'),
+				)
+			);
+		if (is_array($model) && empty($options)) {
+			$options = $model;
+			$model = null;
+		}
+		if (isset($options['class'])) {
+			if (empty($options['inputDefaults'])) {
+				$options['inputDefaults'] = array();
+			}
+			if ($options['class'] == 'form-horizontal') {
+				$options['inputDefaults'] = array_merge($options['inputDefaults'], $inputDefaults['form-horizonal']);
+			}
+			if ($options['class'] == 'form-inline') {
+				$options['inputDefaults'] = array_merge($options['inputDefaults'], $inputDefaults['form-inline']);
+			}
+		}
+		$this->_checkboxOptions = array(
+			'wrapInput' => array('tag' => 'div', 'class' => sprintf('col-md-%d col-md-offset-%d', 12 - $offset, $offset)),
+			'label' => array('class' => null),
+			'class' => null
+			);
+
+		return parent::create($model, $options);
+	}
+
+
 /**
  * Overwrite FormHelper::input()
  * Generates a form input element complete with label and wrapper div
@@ -68,20 +120,24 @@ class BoostCakeFormHelper extends FormHelper {
 					'class' => 'help-block text-danger'
 				)
 			),
-			'wrapInput' => array(
-				'tag' => 'div'
-			),
-			'checkboxDiv' => 'checkbox',
+			'errorClass' => 'has-error error',
+			'div' => array('class' => 'form-group'),
+			'class' => 'form-control',
+			'wrapInput' => '',
 			'beforeInput' => '',
 			'afterInput' => '',
-			'errorClass' => 'has-error error'
-		);
-    
-    if (isset($options['label']) && is_string($options['label'])) {
-      $options['label'] = array(
-        'text' => $options['label']
-       );
-    }    
+			'checkboxDiv' => 'checkbox',
+			);
+
+		// Format the label correctly
+		if (!empty($options['label']) and !is_array($options['label'])) {
+			$options['label'] = array('text' => $options['label']);
+		}
+
+		// Tweaks for checkbox - must pass type
+		if (isset($options['type']) && $options['type'] == 'checkbox') {
+			$options = Hash::merge($options, $this->_checkboxOptions);
+		}
 
 		$options = Hash::merge(
 			$default,
@@ -121,7 +177,6 @@ class BoostCakeFormHelper extends FormHelper {
 			}
 			$regex = '/(<label.*?>)(.*?<\/label>)/';
 			if (preg_match($regex, $html, $label)) {
-				$label = str_replace('$', '\$', $label);
 				$html = preg_replace($regex, '', $html);
 				$html = preg_replace(
 					'/(<input type="checkbox".*?>)/',
@@ -148,10 +203,17 @@ class BoostCakeFormHelper extends FormHelper {
 	protected function _divOptions($options) {
 		$this->_inputType = $options['type'];
 
-		$divOptions = array(
-			'type' => $options['type'],
-			'div' => $this->_inputOptions['wrapInput']
-		);
+		if ($this->_inputType === 'checkbox') {
+			$divOptions = array(
+				'type' => $options['type'],
+				'div' => 'col-md-offset-2 col-md-10'
+			);
+		} else {
+			$divOptions = array(
+				'type' => $options['type'],
+				'div' => $this->_inputOptions['wrapInput']
+			);
+		}
 		$this->_divOptions = parent::_divOptions($divOptions);
 
 		$default = array('div' => array('class' => null));
@@ -161,6 +223,13 @@ class BoostCakeFormHelper extends FormHelper {
 			$divOptions = $this->addClass($divOptions, $this->_inputOptions['errorClass']);
 		}
 		return $divOptions;
+	}
+
+	protected function _inputLabel($fieldName, $label, $options) {
+		if ($this->_inputType === 'checkbox') {
+			unset($label['class']);
+		}
+		return parent::_inputLabel($fieldName, $label, $options);
 	}
 
 /**
@@ -190,7 +259,7 @@ class BoostCakeFormHelper extends FormHelper {
 			}
 		}
 
-		$html = $beforeInput . $input . $afterInput . $error;
+		$html = $beforeInput . $input . $error . $afterInput;
 
 		if ($this->_divOptions) {
 			$tag = $this->_divOptions['tag'];
@@ -220,13 +289,10 @@ class BoostCakeFormHelper extends FormHelper {
 				$option = preg_replace('/<div.*?>/', '', $option);
 				$option = preg_replace('/<\/div>/', '', $option);
 				if (preg_match('/>(<label.*?>)/', $option, $match)) {
-					$class = $attributes['class'];
-					if (preg_match('/.* class="(.*)".*/', $match[1], $classMatch)) {
-						$class = $classMatch[1] . ' ' . $attributes['class'];
-						$match[1] = str_replace(' class="' . $classMatch[1] . '"', '', $match[1]);
-					}
 					$option = $match[1] . preg_replace('/<label.*?>/', ' ', $option);
-					$option = preg_replace('/(<label.*?)(>)/', '$1 class="' . $class . '"$2', $option);
+					if (isset($attributes['class'])) {
+						$option = preg_replace('/(<label.*?)(>)/', '$1 class="' . $attributes['class'] . '"$2', $option);
+					}
 				}
 				$selectOptions[$key] = $option;
 			}
@@ -281,6 +347,39 @@ class BoostCakeFormHelper extends FormHelper {
 		}
 
 		return $out;
+	}
+
+/**
+ * navBar method
+ *
+ * Creates a HTML navbar for bootstrap
+ */
+	public function navBar($menus) {
+
+		$html = null;
+		foreach ($menus as $menu) {
+			if (isset($menu['role']) and !AuthComponent::user($menu['role'])) {
+				continue;
+			}
+			$html .= '<li class="dropdown">';
+			$html .= $this->Html->link(sprintf('<span class="glyphicon glyphicon-%s"></span> %s <b class="caret"></b>', $menu['icon'], $menu['title']), '#', array('class' => 'dropdown-toggle', 'data-toggle' => 'dropdown', 'escape' => false));
+			if (isset($menu['children'])) {
+				$html .= '<ul class="dropdown-menu">';
+				foreach ($menu['children'] as $child) {
+					if (isset($child['separator']) and $child['separator']) {
+						$html .= '<li role="presentation" class="divider"></li>';
+						continue;
+					}
+					$tag = '<li>%s</li>';
+					if (Router::url($child['url']) === $this->params->here) {
+						$tag = '<li class="active">%s</li>';
+					}
+					$html .= sprintf($tag, $this->Html->link($child['title'], $child['url']));
+				}
+				$html .= '</ul>';
+			}
+			$html .= '</li>';
+		}
 	}
 
 }

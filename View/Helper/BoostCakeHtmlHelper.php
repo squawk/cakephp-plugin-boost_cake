@@ -71,4 +71,13 @@ class BoostCakeHtmlHelper extends HtmlHelper {
 		return parent::image($path, $options);
 	}
 
+/**
+ * navbar method
+ *
+ * Creates a navigation bar
+ */
+	public function navbar($menu) {
+
+	}
+
 }
