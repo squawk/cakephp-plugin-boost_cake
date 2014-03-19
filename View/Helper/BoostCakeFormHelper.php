@@ -177,6 +177,7 @@ class BoostCakeFormHelper extends FormHelper {
 			}
 			$regex = '/(<label.*?>)(.*?<\/label>)/';
 			if (preg_match($regex, $html, $label)) {
+				$label = str_replace('$', '\$', $label);
 				$html = preg_replace($regex, '', $html);
 				$html = preg_replace(
 					'/(<input type="checkbox".*?>)/',
@@ -282,6 +283,29 @@ class BoostCakeFormHelper extends FormHelper {
  * @return array
  */
 	protected function _selectOptions($elements = array(), $parents = array(), $showParents = null, $attributes = array()) {
+		$selectOptions = parent::_selectOptions($elements, $parents, $showParents, $attributes);
+
+		if ($attributes['style'] === 'checkbox') {
+			foreach ($selectOptions as $key => $option) {
+				$option = preg_replace('/<div.*?>/', '', $option);
+				$option = preg_replace('/<\/div>/', '', $option);
+				if (preg_match('/>(<label.*?>)/', $option, $match)) {
+					$class = $attributes['class'];
+					if (preg_match('/.* class="(.*)".*/', $match[1], $classMatch)) {
+						$class = $classMatch[1] . ' ' . $attributes['class'];
+						$match[1] = str_replace(' class="' . $classMatch[1] . '"', '', $match[1]);
+					}
+					$option = $match[1] . preg_replace('/<label.*?>/', ' ', $option);
+					$option = preg_replace('/(<label.*?)(>)/', '$1 class="' . $class . '"$2', $option);
+				}
+				$selectOptions[$key] = $option;
+			}
+		}
+
+		return $selectOptions;
+	}
+
+	protected function _selectOptions_OLD($elements = array(), $parents = array(), $showParents = null, $attributes = array()) {
 		$selectOptions = parent::_selectOptions($elements, $parents, $showParents, $attributes);
 
 		if ($attributes['style'] === 'checkbox') {
