@@ -20,6 +20,8 @@ class BoostCakeFormHelper extends FormHelper {
 
 	protected $_defaultOffset = 2;
 
+	protected $_currentOffset;
+
 /**
  * Overwrite FormHelper::create()
  */
@@ -34,6 +36,7 @@ class BoostCakeFormHelper extends FormHelper {
 		if ($offset > 12 || $offset < 1) {
 			$offset = $this->_defaultOffset;
 		}
+		$this->_currentOffset = $offset;
 		$inputDefaults = array(
 			'form-horizonal' => array(
 				'label' => array('class' => sprintf('col-md-%d control-label', $offset)),
@@ -207,7 +210,7 @@ class BoostCakeFormHelper extends FormHelper {
 		if ($this->_inputType === 'checkbox') {
 			$divOptions = array(
 				'type' => $options['type'],
-				'div' => 'col-md-offset-2 col-md-10'
+				'div' => sprintf('col-md-offset-%d col-md-%d', $this->_currentOffset, 12 - $this->_currentOffset)
 			);
 		} else {
 			$divOptions = array(
