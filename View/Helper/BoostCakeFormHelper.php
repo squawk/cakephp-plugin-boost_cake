@@ -139,7 +139,7 @@ class BoostCakeFormHelper extends FormHelper {
 
 		// Tweaks for checkbox - must pass type
 		if (isset($options['type']) && $options['type'] == 'checkbox') {
-			$options = Hash::merge($options, $this->_checkboxOptions);
+			$options = Hash::merge($this->_checkboxOptions, $options);
 		}
 
 		$options = Hash::merge(
@@ -231,7 +231,7 @@ class BoostCakeFormHelper extends FormHelper {
 
 	protected function _inputLabel($fieldName, $label, $options) {
 		if ($this->_inputType === 'checkbox') {
-			unset($label['class']);
+			//unset($label['class']);
 		}
 		return parent::_inputLabel($fieldName, $label, $options);
 	}
