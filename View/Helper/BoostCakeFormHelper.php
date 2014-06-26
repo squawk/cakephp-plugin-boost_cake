@@ -20,6 +20,8 @@ class BoostCakeFormHelper extends FormHelper {
 
 	protected $_defaultOffset = 2;
 
+	protected $_currentOffset;
+
 /**
  * Overwrite FormHelper::create()
  */
@@ -34,7 +36,7 @@ class BoostCakeFormHelper extends FormHelper {
 		if ($offset > 12 || $offset < 1) {
 			$offset = $this->_defaultOffset;
 		}
-		$this->_offset = $offset;
+		$this->_currentOffset = $offset;
 		$inputDefaults = array(
 			'form-horizonal' => array(
 				'label' => array('class' => sprintf('col-md-%d control-label', $offset)),
@@ -137,7 +139,7 @@ class BoostCakeFormHelper extends FormHelper {
 
 		// Tweaks for checkbox - must pass type
 		if (isset($options['type']) && $options['type'] == 'checkbox') {
-			$options = Hash::merge($options, $this->_checkboxOptions);
+			$options = Hash::merge($this->_checkboxOptions, $options);
 		}
 
 		$options = Hash::merge(
@@ -208,7 +210,7 @@ class BoostCakeFormHelper extends FormHelper {
 		if ($this->_inputType === 'checkbox') {
 			$divOptions = array(
 				'type' => $options['type'],
-				'div' => sprintf('col-md-offset-%d col-md-%d', $this->_offset, 12 - $this->_offset)
+				'div' => sprintf('col-md-offset-%d col-md-%d', $this->_currentOffset, 12 - $this->_currentOffset)
 			);
 		} else {
 			$divOptions = array(
@@ -229,7 +231,7 @@ class BoostCakeFormHelper extends FormHelper {
 
 	protected function _inputLabel($fieldName, $label, $options) {
 		if ($this->_inputType === 'checkbox') {
-			unset($label['class']);
+			//unset($label['class']);
 		}
 		return parent::_inputLabel($fieldName, $label, $options);
 	}
